@@ -1,23 +1,24 @@
-import os
+# =========================================================
+#   BuckDuit Backend (Flask API)
+# =========================================================
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
+import os
 
 # =========================================================
 #   Flask App Initialization
 # =========================================================
-# IMPORTANT: This points to your React build folder
-# If your React folder is named "buckduit-frontend", keep this as-is.
-# If you renamed it to "frontend", change the path below accordingly.
-app = Flask(__name__, static_folder='buckduit-frontend/build', static_url_path='/')
-CORS(app)
+app = Flask(__name__, static_folder='../buckduit-frontend/build', static_url_path='/')
+CORS(app)  # Allow frontend to communicate with backend
 
 
 # =========================================================
 #   Example API Routes
 # =========================================================
+
 @app.route('/api/health', methods=['GET'])
-def health_check():
-    """Simple health check endpoint."""
+def api_health_check():
+    """Simple API health check endpoint."""
     return jsonify({"status": "ok", "message": "BuckDuit backend is alive!"}), 200
 
 
@@ -26,7 +27,7 @@ def get_data():
     """Example API route returning JSON."""
     sample_data = {
         "title": "BuckDuit API",
-        "description": "Flask + React deployment test",
+        "description": "Flask + React deployment successful",
         "version": "1.0.0"
     }
     return jsonify(sample_data), 200
@@ -36,7 +37,10 @@ def get_data():
 def echo():
     """Echo back POST data."""
     data = request.get_json(silent=True) or {}
-    return jsonify({"you_sent": data, "status": "received"}), 200
+    return jsonify({
+        "you_sent": data,
+        "status": "received"
+    }), 200
 
 
 # =========================================================
@@ -44,34 +48,27 @@ def echo():
 # =========================================================
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
-def serve(path):
-    """
-    Serves the React frontend build files.
-    If a route doesn't match an API endpoint, return index.html.
-    """
-    build_dir = app.static_folder  # e.g. buckduit-frontend/build
-    requested_path = os.path.join(build_dir, path)
+def serve_frontend(path):
+    """Serve React build files."""
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
 
-    # Helpful debug in logs
-    print(f"[serve] static_folder={build_dir}  path={path}  resolved={requested_path}")
 
-    if path and os.path.exists(requested_path):
-        return send_from_directory(build_dir, path)
-    # Fallback to SPA index.html
-    return send_from_directory(build_dir, 'index.html')
+# =========================================================
+#   Health Check for Render (Internal)
+# =========================================================
+@app.route('/health', methods=['GET'])
+def render_health_check():
+    """Render's internal health endpoint."""
+    return jsonify({"status": "ok", "message": "Render health check passed"}), 200
 
 
 # =========================================================
 #   Main Entrypoint
 # =========================================================
 if __name__ == '__main__':
-    # Works locally and on Render (Render sets $PORT)
     port = int(os.environ.get("PORT", 5000))
-    print(f"Static folder path: {app.static_folder}")
     print(f"Running on port {port} ...")
-
-    app.run(
-        host='0.0.0.0',
-        port=port,
-        debug=True
-    )
+    app.run(host='0.0.0.0', port=port, debug=True)
