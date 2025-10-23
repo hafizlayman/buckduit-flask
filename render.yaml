@@ -1,4 +1,4 @@
-# BuckDuit Flask + React — Render Config (Final Blueprint Version)
+# BuckDuit Flask + React — Render Config (Final Fixed)
 
 services:
   - type: web
