@@ -1,0 +1,23 @@
+# BuckDuit Flask + React — Render Config
+
+services:
+  - type: web
+    name: buckduit-backend
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: true
+
+  - type: web
+    name: buckduit-frontend
+    env: node
+    buildCommand: cd buckduit-frontend && npm install && npm run build
+    startCommand: cd buckduit-frontend && npm start
+    staticPublishPath: buckduit-frontend/build
+    plan: free
+    autoDeploy: true
