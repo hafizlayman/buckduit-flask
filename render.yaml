@@ -1,4 +1,4 @@
-# BuckDuit Flask + React — Render Config
+# BuckDuit Flask + React — Render Config (Final Version)
 
 services:
   - type: web
@@ -17,7 +17,6 @@ services:
     name: buckduit-frontend
     env: node
     buildCommand: cd buckduit-frontend && npm install && npm run build
-    startCommand: cd buckduit-frontend && npm start
     staticPublishPath: buckduit-frontend/build
     plan: free
     autoDeploy: true
