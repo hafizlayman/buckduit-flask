@@ -1,43 +1,77 @@
-from flask import Flask, jsonify
+import os
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
-app = Flask(__name__)
-
-# --- Enable CORS (allow React frontend to access API) ---
+# =========================================================
+#   Flask App Initialization
+# =========================================================
+# IMPORTANT: This points to your React build folder
+# If your React folder is named "buckduit-frontend", keep this as-is.
+# If you renamed it to "frontend", change the path below accordingly.
+app = Flask(__name__, static_folder='buckduit-frontend/build', static_url_path='/')
 CORS(app)
 
-# --- Root route (test connection) ---
-@app.route('/')
-def home():
-    return '''
-        <div style="font-family: Arial; text-align:center; margin-top: 80px;">
-            <h2 style="color: green;">✅ BuckDuit Flask is working locally!</h2>
-            <p>If you see this message, your Flask app is fully functional 💡</p>
-        </div>
-    '''
 
-# --- API route for tools ---
-@app.route('/api/tools', methods=['GET'])
-def get_tools():
-    tools_data = {
-        "success": True,
-        "count": 5,
-        "data": [
-            {"name": "Google Adsense", "category": "Advertising", "status": "Active"},
-            {"name": "Upwork", "category": "Freelance", "status": "Verified"},
-            {"name": "YouTube Partner Program", "category": "Content", "status": "Trusted"},
-            {"name": "Fiverr", "category": "Freelance", "status": "Trusted"},
-            {"name": "TikTok Creator Fund", "category": "Social", "status": "Pending"}
-        ]
+# =========================================================
+#   Example API Routes
+# =========================================================
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    """Simple health check endpoint."""
+    return jsonify({"status": "ok", "message": "BuckDuit backend is alive!"}), 200
+
+
+@app.route('/api/data', methods=['GET'])
+def get_data():
+    """Example API route returning JSON."""
+    sample_data = {
+        "title": "BuckDuit API",
+        "description": "Flask + React deployment test",
+        "version": "1.0.0"
     }
-    return jsonify(tools_data)
+    return jsonify(sample_data), 200
 
-# --- Health Check (used by Render) ---
-@app.route('/health')
-def health():
-    return {"status": "ok"}, 200
 
-# --- Entry point ---
-if __name__ == "__main__":
-    # Local development server
-    app.run(host="0.0.0.0", port=5000, debug=True)
+@app.route('/api/echo', methods=['POST'])
+def echo():
+    """Echo back POST data."""
+    data = request.get_json(silent=True) or {}
+    return jsonify({"you_sent": data, "status": "received"}), 200
+
+
+# =========================================================
+#   Serve React Frontend (Build Folder)
+# =========================================================
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    """
+    Serves the React frontend build files.
+    If a route doesn't match an API endpoint, return index.html.
+    """
+    build_dir = app.static_folder  # e.g. buckduit-frontend/build
+    requested_path = os.path.join(build_dir, path)
+
+    # Helpful debug in logs
+    print(f"[serve] static_folder={build_dir}  path={path}  resolved={requested_path}")
+
+    if path and os.path.exists(requested_path):
+        return send_from_directory(build_dir, path)
+    # Fallback to SPA index.html
+    return send_from_directory(build_dir, 'index.html')
+
+
+# =========================================================
+#   Main Entrypoint
+# =========================================================
+if __name__ == '__main__':
+    # Works locally and on Render (Render sets $PORT)
+    port = int(os.environ.get("PORT", 5000))
+    print(f"Static folder path: {app.static_folder}")
+    print(f"Running on port {port} ...")
+
+    app.run(
+        host='0.0.0.0',
+        port=port,
+        debug=True
+    )

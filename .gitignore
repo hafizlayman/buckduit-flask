@@ -1,0 +1,29 @@
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+instance/
+.env
+.venv/
+venv/
+.env.local
+*.log
+
+# --- Node/React ---
+buckduit-frontend/node_modules/
+buckduit-frontend/.env
+buckduit-frontend/build/
+buckduit-frontend/.DS_Store
+npm-debug.log
+yarn-error.log
+
+# --- System ---
+.DS_Store
+Thumbs.db
+
+# --- VS Code ---
+.vscode/
+node_modules
