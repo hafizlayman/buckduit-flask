@@ -1,11 +1,26 @@
-- type: web
-  name: buckduit-backend
-  env: python
-  buildCommand: pip install -r requirements.txt
-  startCommand: gunicorn app:app
-  envVars:
-    - key: PYTHON_VERSION
-      value: 3.10.14
-  plan: free
-  healthCheckPath: /health
-  autoDeploy: true
+# ==========================================
+# BuckDuit App — Full Render Blueprint
+# ==========================================
+
+services:
+  # ---- BACKEND (Flask API) ----
+  - type: web
+    name: buckduit-backend
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.14
+    healthCheckPath: /health
+    autoDeploy: true
+
+  # ---- FRONTEND (React App) ----
+  - type: web
+    name: buckduit-frontend
+    env: node
+    plan: free
+    buildCommand: cd buckduit-frontend && npm install && npm run build
+    startCommand: npx serve -s buckduit-frontend/build
+    autoDeploy: true
