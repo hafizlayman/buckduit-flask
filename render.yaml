@@ -7,10 +7,10 @@ services:
     plan: free
     autoDeploy: true
 
-  - type: web
+  - type: static
     name: buckduit-frontend
-    env: node
-    buildCommand: npm install && npm run build
-    staticPublishPath: build
+    env: static
+    buildCommand: cd buckduit-frontend && npm install && npm run build
+    staticPublishPath: buckduit-frontend/build
     plan: free
     autoDeploy: true
