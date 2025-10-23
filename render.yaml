@@ -1,4 +1,4 @@
-# BuckDuit Flask + React — Render Config (Final Version)
+# BuckDuit Flask + React — Render Config (Final Fixed)
 
 services:
   - type: web
@@ -13,10 +13,9 @@ services:
     healthCheckPath: /health
     autoDeploy: true
 
-  - type: web
+  - type: static
     name: buckduit-frontend
-    env: node
     buildCommand: cd buckduit-frontend && npm install && npm run build
-    staticPublishPath: buckduit-frontend/build
+    publishPath: buckduit-frontend/build
     plan: free
     autoDeploy: true
