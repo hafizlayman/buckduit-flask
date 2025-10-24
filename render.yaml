@@ -1,23 +1,25 @@
 services:
-  # ==========================================
-  #  BACKEND — Flask API
-  # ==========================================
   - type: web
     name: buckduit-backend
     env: python
-    rootDir: buckduit-backend
-    buildCommand: pip install -r ../requirements.txt
-    startCommand: gunicorn app:app --chdir buckduit-backend --bind 0.0.0.0:$PORT
     plan: free
+    region: singapore
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn wsgi:app --bind 0.0.0.0:10000 --workers 2"
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        sync: false
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: buckduit-db
+          property: connectionString
     autoDeploy: true
 
-  # ==========================================
-  #  FRONTEND — React Build
-  # ==========================================
-  - type: static
-    name: buckduit-frontend
-    env: static
-    buildCommand: cd buckduit-frontend && npm install && npm run build
-    staticPublishPath: buckduit-frontend/build
+databases:
+  - name: buckduit-db
     plan: free
-    autoDeploy: true
+    region: singapore
